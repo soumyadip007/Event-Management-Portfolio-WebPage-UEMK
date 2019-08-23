@@ -238,7 +238,7 @@
 	};
 	contentWayPoint();
 
-	/
+	
 	$('.image-popup').magnificPopup({
     type: 'image',
     closeOnContentClick: true,
