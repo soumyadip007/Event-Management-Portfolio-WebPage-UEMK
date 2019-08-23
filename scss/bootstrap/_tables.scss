@@ -4,7 +4,6 @@
 
 .table {
   width: 100%;
-  max-width: 100%;
   margin-bottom: $spacer;
   background-color: $table-bg; // Reset for nesting within parents with `background-color`.
 
@@ -42,9 +41,9 @@
 }
 
 
-// Bordered version
+// Border versions
 //
-// Add borders all around the table and between all the columns.
+// Add or remove borders all around the table and between all the columns.
 
 .table-bordered {
   border: $table-border-width solid $table-border-color;
@@ -57,18 +56,26 @@
   thead {
     th,
     td {
-      border-bottom-width: (2 * $table-border-width);
+      border-bottom-width: 2 * $table-border-width;
     }
   }
 }
 
+.table-borderless {
+  th,
+  td,
+  thead th,
+  tbody + tbody {
+    border: 0;
+  }
+}
 
 // Zebra-striping
 //
 // Default zebra-stripe styles (alternating gray and transparent backgrounds)
 
 .table-striped {
-  tbody tr:nth-of-type(odd) {
+  tbody tr:nth-of-type(#{$table-striped-order}) {
     background-color: $table-accent-bg;
   }
 }
@@ -93,38 +100,43 @@
 // inheritance to nested tables.
 
 @each $color, $value in $theme-colors {
-  @include table-row-variant($color, theme-color-level($color, -9));
+  @include table-row-variant($color, theme-color-level($color, $table-bg-level), theme-color-level($color, $table-border-level));
 }
 
 @include table-row-variant(active, $table-active-bg);
 
 
-// Inverse styles
+// Dark styles
 //
 // Same table markup, but inverted color scheme: dark background and light text.
 
-.thead-inverse {
-  th {
-    color: $table-inverse-color;
-    background-color: $table-inverse-bg;
+// stylelint-disable-next-line no-duplicate-selectors
+.table {
+  .thead-dark {
+    th {
+      color: $table-dark-color;
+      background-color: $table-dark-bg;
+      border-color: $table-dark-border-color;
+    }
+  }
+
+  .thead-light {
+    th {
+      color: $table-head-color;
+      background-color: $table-head-bg;
+      border-color: $table-border-color;
+    }
   }
 }
 
-.thead-default {
-  th {
-    color: $table-head-color;
-    background-color: $table-head-bg;
-  }
-}
-
-.table-inverse {
-  color: $table-inverse-color;
-  background-color: $table-inverse-bg;
+.table-dark {
+  color: $table-dark-color;
+  background-color: $table-dark-bg;
 
   th,
   td,
   thead th {
-    border-color: $table-inverse-border-color;
+    border-color: $table-dark-border-color;
   }
 
   &.table-bordered {
@@ -133,14 +145,14 @@
 
   &.table-striped {
     tbody tr:nth-of-type(odd) {
-      background-color: $table-inverse-accent-bg;
+      background-color: $table-dark-accent-bg;
     }
   }
 
   &.table-hover {
     tbody tr {
       @include hover {
-        background-color: $table-inverse-hover-bg;
+        background-color: $table-dark-hover-bg;
       }
     }
   }
@@ -149,20 +161,27 @@
 
 // Responsive tables
 //
-// Add `.table-responsive` to `.table`s and we'll make them mobile friendly by
-// enabling horizontal scrolling. Only applies <768px. Everything above that
-// will display normally.
+// Generate series of `.table-responsive-*` classes for configuring the screen
+// size of where your table will overflow.
 
 .table-responsive {
-  @include media-breakpoint-down(md) {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -ms-overflow-style: -ms-autohiding-scrollbar; // See https://github.com/twbs/bootstrap/pull/10057
+  @each $breakpoint in map-keys($grid-breakpoints) {
+    $next: breakpoint-next($breakpoint, $grid-breakpoints);
+    $infix: breakpoint-infix($next, $grid-breakpoints);
 
-    // Prevent double border on horizontal scroll due to use of `display: block;`
-    &.table-bordered {
-      border: 0;
+    &#{$infix} {
+      @include media-breakpoint-down($breakpoint) {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        -ms-overflow-style: -ms-autohiding-scrollbar; // See https://github.com/twbs/bootstrap/pull/10057
+
+        // Prevent double border on horizontal scroll due to use of `display: block;`
+        > .table-bordered {
+          border: 0;
+        }
+      }
     }
   }
 }

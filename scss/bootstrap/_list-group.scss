@@ -59,12 +59,14 @@
   }
 
   @include hover-focus {
+    z-index: 1; // Place hover/active items above their siblings for proper border styling
     text-decoration: none;
   }
 
   &.disabled,
   &:disabled {
     color: $list-group-disabled-color;
+    pointer-events: none;
     background-color: $list-group-disabled-bg;
   }
 
@@ -87,7 +89,11 @@
   .list-group-item {
     border-right: 0;
     border-left: 0;
-    border-radius: 0;
+    @include border-radius(0);
+
+    &:last-child {
+      margin-bottom: -$list-group-border-width;
+    }
   }
 
   &:first-child {
@@ -98,6 +104,7 @@
 
   &:last-child {
     .list-group-item:last-child {
+      margin-bottom: 0;
       border-bottom: 0;
     }
   }
